@@ -2,6 +2,7 @@ import { ListTodo, CheckCircle2, Clock, Archive, Pin, Search } from 'lucide-reac
 import { Button } from '@/components/ui/button';
 import { useTaskStore } from '@/store/taskStore';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 interface EmptyStateProps {
   type?: 'all' | 'completed' | 'pending' | 'archived' | 'pinned' | 'search' | 'filtered';
@@ -64,8 +65,19 @@ export const EmptyState = ({
   onAction 
 }: EmptyStateProps) => {
   const { openAddModal, resetFilters } = useTaskStore();
+  const { t } = useI18n();
   
-  const config = emptyStateConfigs[type];
+  const config = {
+    ...emptyStateConfigs[type],
+    title: t(`empty.${type}Title`),
+    description: t(`empty.${type}Description`),
+    actionLabel:
+      type === 'search' || type === 'filtered'
+        ? t('empty.clearFilters')
+        : type === 'all' || type === 'pending'
+          ? t('common.createTask')
+          : t('empty.viewAllTasks'),
+  };
   const Icon = config.icon;
   
   const handleAction = () => {

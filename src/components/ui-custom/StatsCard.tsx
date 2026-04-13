@@ -62,7 +62,7 @@ export const StatsCard = ({
     <Card
       onClick={onClick}
       className={cn(
-        'p-6 transition-all duration-200',
+        'p-4 sm:p-6 transition-all duration-200',
         'hover:shadow-md hover:-translate-y-0.5',
         onClick && 'cursor-pointer',
         'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
@@ -70,10 +70,10 @@ export const StatsCard = ({
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+          <p className="mb-1 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
             {title}
           </p>
-          <h3 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             {value}
           </h3>
           
@@ -93,10 +93,10 @@ export const StatsCard = ({
         </div>
         
         <div className={cn(
-          'w-12 h-12 rounded-xl flex items-center justify-center',
+          'w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center',
           styles.bg
         )}>
-          <Icon className={cn('w-6 h-6', styles.icon)} />
+          <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', styles.icon)} />
         </div>
       </div>
     </Card>

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { AppLanguage } from '@/lib/i18n';
 
 interface SettingsState {
   // Appearance
@@ -10,6 +11,7 @@ interface SettingsState {
   userName: string;
   avatarUrl: string;
   hasCompletedOnboarding: boolean;
+  language: AppLanguage;
   
   // Notifications
   enableNotifications: boolean;
@@ -25,6 +27,7 @@ interface SettingsState {
   setDarkMode: (value: boolean) => void;
   toggleSidebar: () => void;
   setSidebarCollapsed: (value: boolean) => void;
+  setLanguage: (language: AppLanguage) => void;
   setUserProfile: (profile: { userName: string; avatarUrl?: string }) => void;
   clearUserProfile: () => void;
   toggleNotifications: () => void;
@@ -43,6 +46,7 @@ const defaultSettings = {
   userName: '',
   avatarUrl: '',
   hasCompletedOnboarding: false,
+  language: 'en' as AppLanguage,
   enableNotifications: false,
   dueDateReminders: true,
   reminderTime: 60, // 1 hour before
@@ -85,6 +89,11 @@ export const useSettingsStore = create<SettingsState>()(
 
       setSidebarCollapsed: (value) => {
         set({ sidebarCollapsed: value });
+      },
+
+      setLanguage: (language) => {
+        set({ language });
+        document.documentElement.lang = language;
       },
 
       setUserProfile: ({ userName, avatarUrl = '' }) => {
@@ -135,6 +144,9 @@ export const useSettingsStore = create<SettingsState>()(
         // Apply dark mode on rehydrate
         if (state?.darkMode) {
           document.documentElement.classList.add('dark');
+        }
+        if (state?.language) {
+          document.documentElement.lang = state.language;
         }
       },
     }

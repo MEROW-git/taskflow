@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { TaskCard } from '@/components/ui-custom/TaskCard';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { useTaskStore } from '@/store/taskStore';
+import { useI18n } from '@/lib/i18n';
 
 export const PendingTasks = () => {
+  const { t } = useI18n();
   const { getTasksByStatus, openAddModal } = useTaskStore();
   const tasks = getTasksByStatus('pending').filter(t => !t.isArchived);
 
@@ -18,10 +20,13 @@ export const PendingTasks = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Pending Tasks
+              {t('tasksPage.pendingTasks')}
             </h1>
             <p className="text-gray-500 dark:text-gray-400">
-              {tasks.length} pending task{tasks.length !== 1 ? 's' : ''}
+              {t('tasksPage.pendingCount', {
+                count: tasks.length,
+                taskWord: tasks.length === 1 ? t('common.task') : t('common.tasks'),
+              })}
             </p>
           </div>
         </div>
@@ -30,7 +35,7 @@ export const PendingTasks = () => {
           className="bg-violet-600 hover:bg-violet-700"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Task
+          {t('common.addTask')}
         </Button>
       </div>
 

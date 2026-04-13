@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nokora:wght@100;300;400;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -74,6 +76,25 @@
   }
   html {
     scroll-behavior: smooth;
+  }
+  html[lang="km"] body,
+  html[lang="km"] button,
+  html[lang="km"] input,
+  html[lang="km"] textarea,
+  html[lang="km"] select,
+  html[lang="km"] h1,
+  html[lang="km"] h2,
+  html[lang="km"] h3,
+  html[lang="km"] h4,
+  html[lang="km"] h5,
+  html[lang="km"] h6,
+  html[lang="km"] label,
+  html[lang="km"] p,
+  html[lang="km"] span,
+  html[lang="km"] a {
+    font-family: 'Nokora', system-ui, sans-serif;
+    line-height: 1.7;
+    letter-spacing: 0;
   }
 }
 

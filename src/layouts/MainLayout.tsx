@@ -9,6 +9,7 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { useTaskStore } from '@/store/taskStore';
 import { cn } from '@/lib/utils';
 import { sendBrowserNotification } from '@/utils/notificationUtils';
+import { useI18n } from '@/lib/i18n';
 
 const NOTIFIED_TASKS_KEY = 'flowtask-notified-tasks';
 
@@ -16,6 +17,7 @@ export const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { sidebarCollapsed, hasCompletedOnboarding, enableNotifications, dueDateReminders, reminderTime } = useSettingsStore();
   const { tasks } = useTaskStore();
+  const { t } = useI18n();
 
   if (!hasCompletedOnboarding) {
     return <Navigate to="/welcome" replace />;
@@ -45,8 +47,10 @@ export const MainLayout = () => {
         const shouldNotify = msUntilDue > 0 && msUntilDue <= reminderTime * 60 * 1000;
 
         if (shouldNotify && !notifiedTaskIds.has(task.id)) {
-          const sent = sendBrowserNotification(`Task due soon: ${task.title}`, {
-            body: `Due at ${new Date(task.dueDate).toLocaleString()}`,
+          const sent = sendBrowserNotification(t('notifications.dueSoonTitle', { title: task.title }), {
+            body: t('notifications.dueSoonBody', {
+              date: new Date(task.dueDate).toLocaleString(),
+            }),
           });
 
           if (sent) {

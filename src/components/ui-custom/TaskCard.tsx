@@ -28,11 +28,10 @@ import { useSettingsStore } from '@/store/settingsStore';
 import { formatDate, getDueDateStatus } from '@/utils/dateUtils';
 import { 
   PRIORITY_COLORS, 
-  PRIORITY_LABELS, 
-  TASK_TYPE_LABELS,
   type Task,
 } from '@/types/task';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 interface TaskCardProps {
   task: Task;
@@ -57,6 +56,7 @@ export const TaskCard = ({
     openEditModal 
   } = useTaskStore();
   const { confirmBeforeDelete } = useSettingsStore();
+  const { t, labelPriority, labelTaskType, labelCategory } = useI18n();
 
   const dueDateStatus = getDueDateStatus(task.dueDate, task.status);
   const completedChecklistItems = task.checklist.filter(item => item.completed).length;
@@ -67,7 +67,7 @@ export const TaskCard = ({
 
   const handleDelete = () => {
     if (confirmBeforeDelete) {
-      if (window.confirm(`Are you sure you want to delete "${task.title}"?`)) {
+      if (window.confirm(t('taskCard.confirmDelete', { title: task.title }))) {
         deleteTask(task.id);
       }
     } else {
@@ -204,22 +204,22 @@ export const TaskCard = ({
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={() => openEditModal(task)}>
                   <Edit2 className="w-4 h-4 mr-2" />
-                  Edit
+                  {t('taskCard.edit')}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDuplicate}>
                   <Copy className="w-4 h-4 mr-2" />
-                  Duplicate
+                  {t('taskCard.duplicate')}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {task.isArchived ? (
                   <DropdownMenuItem onClick={() => unarchiveTask(task.id)}>
                     <Archive className="w-4 h-4 mr-2" />
-                    Unarchive
+                    {t('taskCard.unarchive')}
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem onClick={() => archiveTask(task.id)}>
                     <Archive className="w-4 h-4 mr-2" />
-                    Archive
+                    {t('common.archive')}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
@@ -228,7 +228,7 @@ export const TaskCard = ({
                   className="text-red-600 focus:text-red-600"
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
+                  {t('common.delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -248,7 +248,7 @@ export const TaskCard = ({
             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
               <span className="flex items-center gap-1">
                 <ListChecks className="w-3.5 h-3.5" />
-                Checklist
+                {t('taskCard.checklist')}
               </span>
               <span>{completedChecklistItems}/{totalChecklistItems}</span>
             </div>
@@ -275,7 +275,7 @@ export const TaskCard = ({
                 borderColor: `${PRIORITY_COLORS[task.priority]}40`
               }}
             >
-              {PRIORITY_LABELS[task.priority]}
+              {labelPriority(task.priority)}
             </Badge>
             
             {/* Category Badge */}
@@ -284,13 +284,13 @@ export const TaskCard = ({
                 variant="outline" 
                 className="text-xs text-gray-600 dark:text-gray-400"
               >
-                {task.category}
+                {labelCategory(task.category)}
               </Badge>
             )}
             
             {/* Task Type Icon */}
             {getTaskTypeIcon() && (
-              <span className="text-gray-400" title={TASK_TYPE_LABELS[task.taskType]}>
+              <span className="text-gray-400" title={labelTaskType(task.taskType)}>
                 {getTaskTypeIcon()}
               </span>
             )}

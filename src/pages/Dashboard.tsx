@@ -19,10 +19,12 @@ import { useTaskStore } from '@/store/taskStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { formatDate, getDueDateStatus } from '@/utils/dateUtils';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
   const { userName } = useSettingsStore();
+  const { t } = useI18n();
   const { 
     getTaskStats, 
     getRecentTasks, 
@@ -44,59 +46,59 @@ export const Dashboard = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Dashboard
+            {t('nav.dashboard')}
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
-            {userName ? `Welcome back, ${userName}! Here's your task overview.` : "Welcome back! Here's your task overview."}
+            {userName ? t('dashboard.welcomeBackName', { name: userName }) : t('dashboard.welcomeBack')}
           </p>
         </div>
         <Button 
           onClick={openAddModal}
           className="bg-violet-600 hover:bg-violet-700"
         >
-          + Add Task
+          + {t('common.addTask')}
         </Button>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
         <StatsCard
-          title="Total Tasks"
+          title={t('dashboard.totalTasks')}
           value={stats.total}
           icon={ListTodo}
           color="violet"
           onClick={() => navigate('/tasks')}
         />
         <StatsCard
-          title="Completed"
+          title={t('nav.completed')}
           value={stats.completed}
           icon={CheckCircle2}
           color="green"
           onClick={() => navigate('/completed')}
         />
         <StatsCard
-          title="Pending"
+          title={t('nav.pending')}
           value={stats.pending}
           icon={Clock}
           color="blue"
           onClick={() => navigate('/pending')}
         />
         <StatsCard
-          title="In Progress"
+          title={t('dashboard.inProgress')}
           value={stats.inProgress}
           icon={TrendingUp}
           color="amber"
           onClick={() => navigate('/tasks')}
         />
         <StatsCard
-          title="Overdue"
+          title={t('labels.overdue')}
           value={stats.overdue}
           icon={AlertCircle}
           color="red"
           onClick={() => navigate('/tasks')}
         />
         <StatsCard
-          title="Pinned"
+          title={t('nav.pinned')}
           value={stats.pinned}
           icon={Pin}
           color="purple"
@@ -109,10 +111,10 @@ export const Dashboard = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Completion Progress
+              {t('dashboard.completionProgress')}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {stats.completed} of {stats.total} tasks completed
+              {t('dashboard.ofTasksCompleted', { completed: stats.completed, total: stats.total })}
             </p>
           </div>
           <div className="text-right">
@@ -135,7 +137,7 @@ export const Dashboard = () => {
             <div className="flex items-center gap-2">
               <Pin className="w-5 h-5 text-violet-600" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Pinned Tasks
+                {t('dashboard.pinnedTasks')}
               </h3>
             </div>
             <Button 
@@ -143,7 +145,7 @@ export const Dashboard = () => {
               size="sm"
               onClick={() => navigate('/pinned')}
             >
-              View All
+              {t('common.viewAll')}
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
@@ -157,14 +159,14 @@ export const Dashboard = () => {
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                No pinned tasks yet
+                {t('dashboard.noPinnedTasksYet')}
               </p>
               <Button 
                 variant="link" 
                 onClick={() => navigate('/tasks')}
                 className="text-violet-600"
               >
-                Pin important tasks
+                {t('dashboard.pinImportantTasks')}
               </Button>
             </div>
           )}
@@ -176,7 +178,7 @@ export const Dashboard = () => {
             <div className="flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-600" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Upcoming Due Dates
+                {t('dashboard.upcomingDueDates')}
               </h3>
             </div>
             <Button 
@@ -184,7 +186,7 @@ export const Dashboard = () => {
               size="sm"
               onClick={() => navigate('/tasks')}
             >
-              View All
+              {t('common.viewAll')}
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
@@ -241,14 +243,14 @@ export const Dashboard = () => {
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-500 dark:text-gray-400 text-sm">
-                No upcoming due dates
+                {t('dashboard.noUpcomingDueDates')}
               </p>
               <Button 
                 variant="link" 
                 onClick={openAddModal}
                 className="text-violet-600"
               >
-                Add a task with due date
+                {t('dashboard.addTaskWithDueDate')}
               </Button>
             </div>
           )}
@@ -260,7 +262,7 @@ export const Dashboard = () => {
             <div className="flex items-center gap-2">
               <Clock className="w-5 h-5 text-amber-600" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Recent Tasks
+                {t('dashboard.recentTasks')}
               </h3>
             </div>
             <Button 
@@ -268,7 +270,7 @@ export const Dashboard = () => {
               size="sm"
               onClick={() => navigate('/tasks')}
             >
-              View All
+              {t('common.viewAll')}
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
@@ -291,10 +293,13 @@ export const Dashboard = () => {
               <AlertCircle className="w-6 h-6 text-red-600" />
               <div>
                 <h3 className="text-lg font-semibold text-red-900 dark:text-red-100">
-                  Overdue Tasks
+                  {t('dashboard.overdueTasks')}
                 </h3>
                 <p className="text-sm text-red-600 dark:text-red-300">
-                  You have {overdueTasks.length} overdue task{overdueTasks.length > 1 ? 's' : ''}
+                  {t('dashboard.youHaveOverdue', {
+                    count: overdueTasks.length,
+                    taskWord: overdueTasks.length > 1 ? t('common.tasks') : t('common.task'),
+                  })}
                 </p>
               </div>
             </div>

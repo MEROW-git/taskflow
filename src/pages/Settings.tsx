@@ -1,17 +1,17 @@
 import { useState, useRef } from 'react';
-import { 
-  Moon, 
-  Sun, 
-  Bell, 
-  Download, 
-  Upload, 
-  Trash2, 
+import {
+  Moon,
+  Sun,
+  Bell,
+  Download,
+  Upload,
+  Trash2,
   Info,
   Github,
   Shield,
   Save,
   User,
-  Trash2 as RemoveIcon
+  Trash2 as RemoveIcon,
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,10 +20,12 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTaskStore } from '@/store/taskStore';
 import { toast } from '@/components/ui-custom/ToastContainer';
 import { requestNotificationPermission, sendBrowserNotification, isNotificationSupported } from '@/utils/notificationUtils';
+import { useI18n } from '@/lib/i18n';
 
 export const Settings = () => {
   const {
@@ -37,8 +39,11 @@ export const Settings = () => {
     toggleConfirmBeforeDelete,
     userName,
     avatarUrl,
+    language,
+    setLanguage,
     setUserProfile,
   } = useSettingsStore();
+  const { t } = useI18n();
 
   const { exportTasks, importTasks, clearAll, tasks } = useTaskStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,7 +71,7 @@ export const Settings = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success('Tasks exported successfully');
+    toast.success(t('settings.exportTasks'));
   };
 
   const handleImportClick = () => {
@@ -89,29 +94,28 @@ export const Settings = () => {
           setImportError(result.message);
           toast.error(result.message);
         }
-      } catch (error) {
+      } catch {
         setImportError('Failed to read file');
         toast.error('Failed to read file');
       }
     };
     reader.readAsText(file);
-    
-    // Reset file input
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to delete ALL tasks? This cannot be undone.')) {
+    if (window.confirm(t('tasksPage.confirmDeleteMany', { count: tasks.length }))) {
       clearAll();
-      toast.success('All tasks deleted');
+      toast.success(t('settings.allTasksDeleted'));
     }
   };
 
   const handleSaveProfile = () => {
     if (!profileName.trim()) {
-      toast.error('Name is required');
+      toast.error(t('settings.nameRequired'));
       return;
     }
 
@@ -119,7 +123,7 @@ export const Settings = () => {
       userName: profileName,
       avatarUrl: profileAvatarUrl,
     });
-    toast.success('Profile updated');
+    toast.success(t('settings.profileUpdated'));
   };
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,13 +145,13 @@ export const Settings = () => {
   const handleToggleNotifications = async (checked: boolean) => {
     if (checked) {
       if (!isNotificationSupported()) {
-        toast.error('This browser does not support notifications');
+        toast.error(t('navbar.browserNotSupported'));
         return;
       }
 
       const permission = await requestNotificationPermission();
       if (permission !== 'granted') {
-        toast.error('Notification permission was not granted');
+        toast.error(t('navbar.permissionNotGranted'));
         return;
       }
 
@@ -155,22 +159,22 @@ export const Settings = () => {
         toggleNotifications();
       }
 
-      sendBrowserNotification('FlowTask notifications enabled', {
-        body: 'You will now receive reminders while the app is open.',
+      sendBrowserNotification(t('settings.notificationsEnabledTitle'), {
+        body: t('settings.notificationsEnabledBody'),
       });
-      toast.success('Notifications enabled');
+      toast.success(t('settings.notificationsEnabled'));
       return;
     }
 
     if (enableNotifications) {
       toggleNotifications();
     }
-    toast.info('Notifications disabled');
+    toast.info(t('settings.notificationsDisabled'));
   };
 
   const handleToggleDueReminders = (checked: boolean) => {
     if (!enableNotifications && checked) {
-      toast.error('Enable notifications first');
+      toast.error(t('settings.enableNotificationsBeforeReminders'));
       return;
     }
 
@@ -181,26 +185,25 @@ export const Settings = () => {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Settings
+          {t('settings.title')}
         </h1>
         <p className="text-gray-500 dark:text-gray-400">
-          Customize your FlowTask experience
+          {t('settings.subtitle')}
         </p>
       </div>
 
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="mb-4 flex items-center gap-3">
           <User className="w-5 h-5 text-violet-600" />
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Profile
+            {t('settings.profile')}
           </h2>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center gap-4 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
+          <div className="flex items-center gap-4 rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
             <Avatar className="h-14 w-14">
               <AvatarImage src={profileAvatarUrl} alt={profileName || 'User profile'} />
               <AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
@@ -212,23 +215,39 @@ export const Settings = () => {
                 {profileName.trim() || 'Unnamed user'}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Stored locally in this browser
+                {t('settings.storedLocally')}
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="profile-name">Name</Label>
+            <Label>{t('settings.language')}</Label>
+            <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'km')}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">{t('settings.english')}</SelectItem>
+                <SelectItem value="km">{t('settings.khmer')}</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t('settings.languageDescription')}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="profile-name">{t('settings.name')}</Label>
             <Input
               id="profile-name"
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
-              placeholder="Your name"
+              placeholder={t('welcome.enterYourName')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Profile image</Label>
+            <Label>{t('settings.profileImage')}</Label>
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -237,14 +256,10 @@ export const Settings = () => {
                 className="flex-1"
               >
                 <Upload className="w-4 h-4 mr-2" />
-                {profileAvatarUrl ? 'Change image' : 'Upload image'}
+                {profileAvatarUrl ? t('settings.changeImage') : t('settings.uploadImage')}
               </Button>
               {profileAvatarUrl && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setProfileAvatarUrl('')}
-                >
+                <Button type="button" variant="outline" onClick={() => setProfileAvatarUrl('')}>
                   <RemoveIcon className="w-4 h-4" />
                 </Button>
               )}
@@ -257,63 +272,57 @@ export const Settings = () => {
               className="hidden"
             />
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Stored locally in this browser.
+              {t('settings.storedLocally')}
             </p>
           </div>
 
           <Button onClick={handleSaveProfile} className="bg-violet-600 hover:bg-violet-700">
-            Save Profile
+            {t('settings.saveProfile')}
           </Button>
         </div>
       </Card>
 
-      {/* Appearance */}
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="mb-4 flex items-center gap-3">
           {darkMode ? (
             <Moon className="w-5 h-5 text-violet-600" />
           ) : (
             <Sun className="w-5 h-5 text-amber-500" />
           )}
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Appearance
+            {t('settings.appearance')}
           </h2>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <div>
             <Label htmlFor="dark-mode" className="font-medium">
-              Dark Mode
+              {t('settings.darkMode')}
             </Label>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Switch between light and dark themes
+              {t('settings.darkModeDescription')}
             </p>
           </div>
-          <Switch
-            id="dark-mode"
-            checked={darkMode}
-            onCheckedChange={toggleDarkMode}
-          />
+          <Switch id="dark-mode" checked={darkMode} onCheckedChange={toggleDarkMode} />
         </div>
       </Card>
 
-      {/* Notifications */}
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="mb-4 flex items-center gap-3">
           <Bell className="w-5 h-5 text-blue-600" />
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Notifications
+            {t('settings.notifications')}
           </h2>
         </div>
-        
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <Label htmlFor="notifications" className="font-medium">
-                Enable Notifications
+                {t('settings.enableNotifications')}
               </Label>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Receive browser notifications for task updates
+                {t('settings.notificationsDescription')}
               </p>
             </div>
             <Switch
@@ -322,16 +331,16 @@ export const Settings = () => {
               onCheckedChange={handleToggleNotifications}
             />
           </div>
-          
+
           <Separator />
-          
+
           <div className="flex items-center justify-between">
             <div>
               <Label htmlFor="due-reminders" className="font-medium">
-                Due Date Reminders
+                {t('settings.dueDateReminders')}
               </Label>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Get reminded before tasks are due
+                {t('settings.dueDateRemindersDescription')}
               </p>
             </div>
             <Switch
@@ -343,41 +352,40 @@ export const Settings = () => {
         </div>
       </Card>
 
-      {/* Data Management */}
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="mb-4 flex items-center gap-3">
           <Save className="w-5 h-5 text-green-600" />
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Data Management
+            {t('settings.dataManagement')}
           </h2>
         </div>
-        
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <Label className="font-medium">Export Tasks</Label>
+              <Label className="font-medium">{t('settings.exportTasks')}</Label>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Download all your tasks as a JSON file
+                {t('settings.exportDescription')}
               </p>
             </div>
             <Button variant="outline" onClick={handleExport}>
               <Download className="w-4 h-4 mr-2" />
-              Export
+              {t('settings.exportTasks')}
             </Button>
           </div>
-          
+
           <Separator />
-          
+
           <div className="flex items-center justify-between">
             <div>
-              <Label className="font-medium">Import Tasks</Label>
+              <Label className="font-medium">{t('settings.importTasks')}</Label>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Import tasks from a JSON file
+                {t('settings.importDescription')}
               </p>
             </div>
             <Button variant="outline" onClick={handleImportClick}>
               <Upload className="w-4 h-4 mr-2" />
-              Import
+              {t('settings.importTasks')}
             </Button>
             <input
               ref={fileInputRef}
@@ -387,44 +395,41 @@ export const Settings = () => {
               className="hidden"
             />
           </div>
-          
-          {importError && (
-            <p className="text-sm text-red-600">{importError}</p>
-          )}
-          
+
+          {importError && <p className="text-sm text-red-600">{importError}</p>}
+
           <Separator />
-          
+
           <div className="flex items-center justify-between">
             <div>
-              <Label className="font-medium text-red-600">Clear All Data</Label>
+              <Label className="font-medium text-red-600">{t('settings.clearAllData')}</Label>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Delete all tasks permanently ({tasks.length} tasks)
+                {t('settings.clearAllDescription', { count: tasks.length })}
               </p>
             </div>
             <Button variant="destructive" onClick={handleClearAll}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Clear All
+              {t('tasksPage.clearAll')}
             </Button>
           </div>
         </div>
       </Card>
 
-      {/* Behavior */}
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="mb-4 flex items-center gap-3">
           <Shield className="w-5 h-5 text-amber-600" />
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Behavior
+            {t('settings.behavior')}
           </h2>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <div>
             <Label htmlFor="confirm-delete" className="font-medium">
-              Confirm Before Delete
+              {t('settings.confirmBeforeDelete')}
             </Label>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Show confirmation dialog before deleting tasks
+              {t('settings.confirmDeleteDescription')}
             </p>
           </div>
           <Switch
@@ -435,32 +440,27 @@ export const Settings = () => {
         </div>
       </Card>
 
-      {/* About */}
       <Card className="p-6">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="mb-4 flex items-center gap-3">
           <Info className="w-5 h-5 text-gray-600" />
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            About
+            {t('settings.about')}
           </h2>
         </div>
-        
+
         <div className="space-y-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-violet-600 flex items-center justify-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600">
               <span className="text-xl font-bold text-white">F</span>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">
-                FlowTask
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Version 1.0.0
-              </p>
+              <h3 className="font-semibold text-gray-900 dark:text-white">FlowTask</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Version 1.0.0</p>
             </div>
           </div>
-          
+
           <Separator />
-          
+
           <div className="space-y-2">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               <span className="font-medium">Built by:</span> Meas Puttivireak
@@ -475,11 +475,11 @@ export const Settings = () => {
               github.com/MEROW-git
             </a>
           </div>
-          
+
           <Separator />
-          
+
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            FlowTask stores all data locally in your browser. No data is sent to any server.
+            {t('settings.localOnly')}
           </p>
         </div>
       </Card>

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTaskStore } from '@/store/taskStore';
+import { useI18n } from '@/lib/i18n';
 
 const LEGACY_SAMPLE_TITLES = new Set([
   'Welcome to FlowTask! ðŸŽ‰',
@@ -32,6 +33,7 @@ export const Welcome = () => {
   const navigate = useNavigate();
   const { hasCompletedOnboarding, setUserProfile } = useSettingsStore();
   const { tasks, clearAll } = useTaskStore();
+  const { t } = useI18n();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [userName, setUserName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
@@ -84,7 +86,7 @@ export const Welcome = () => {
           <div className="flex flex-col justify-center">
             <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-violet-200/70 bg-white/70 px-4 py-2 text-sm text-violet-700 shadow-sm backdrop-blur dark:border-violet-800 dark:bg-gray-900/60 dark:text-violet-300">
               <Sparkles className="h-4 w-4" />
-              Browser-only task manager
+              {t('welcome.browserOnly')}
             </div>
             <div className="mb-6 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-lg shadow-violet-500/20">
@@ -92,26 +94,26 @@ export const Welcome = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-950 dark:text-white sm:text-5xl">
-                  Welcome to FlowTask
+                  {t('welcome.title')}
                 </h1>
                 <p className="mt-2 max-w-xl text-base text-gray-600 dark:text-gray-300 sm:text-lg">
-                  Set your name once, optionally upload a profile image, and your task data stays in this browser only.
+                  {t('welcome.subtitle')}
                 </p>
               </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
               <Card className="border-white/60 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/70">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">No database</p>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Everything is saved locally on the user’s device.</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{t('welcome.noDatabase')}</p>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('welcome.noDatabaseDesc')}</p>
               </Card>
               <Card className="border-white/60 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/70">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">No sign-up</p>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Users can start instantly without accounts or logins.</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{t('welcome.noSignup')}</p>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('welcome.noSignupDesc')}</p>
               </Card>
               <Card className="border-white/60 bg-white/75 p-4 shadow-sm backdrop-blur dark:border-gray-800 dark:bg-gray-900/70">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">Private by default</p>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Tasks remain in the browser unless the user exports them.</p>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{t('welcome.privateByDefault')}</p>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('welcome.privateByDefaultDesc')}</p>
               </Card>
             </div>
           </div>
@@ -120,13 +122,13 @@ export const Welcome = () => {
             <form onSubmit={handleContinue} className="space-y-6">
               <div>
                 <p className="text-sm font-medium uppercase tracking-[0.18em] text-violet-600 dark:text-violet-300">
-                  First run setup
+                  {t('welcome.firstRun')}
                 </p>
                 <h2 className="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">
-                  Tell FlowTask who’s using it
+                  {t('welcome.whoUsing')}
                 </h2>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Your name is required. The profile image is optional and saved locally in this browser too.
+                  {t('welcome.profileOptional')}
                 </p>
               </div>
 
@@ -139,21 +141,21 @@ export const Welcome = () => {
                 </Avatar>
                 <div>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    {userName.trim() || 'Your preview'}
+                    {userName.trim() || t('welcome.preview')}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    This stays in browser storage on this device.
+                    {t('welcome.staysInBrowser')}
                   </p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="user-name">Your name</Label>
+                <Label htmlFor="user-name">{t('welcome.yourName')}</Label>
                 <Input
                   id="user-name"
                   value={userName}
                   onChange={(e) => setUserName(e.target.value)}
-                  placeholder="Enter your name"
+                  placeholder={t('welcome.enterYourName')}
                   autoFocus
                 />
               </div>
@@ -161,7 +163,7 @@ export const Welcome = () => {
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Upload className="h-4 w-4" />
-                  Profile image (optional)
+                  {t('welcome.profileImageOptional')}
                 </Label>
                 <div className="flex gap-2">
                   <Button
@@ -171,7 +173,7 @@ export const Welcome = () => {
                     className="flex-1"
                   >
                     <Upload className="mr-2 h-4 w-4" />
-                    {avatarUrl ? 'Change image' : 'Upload image'}
+                    {avatarUrl ? t('settings.changeImage') : t('welcome.uploadImage')}
                   </Button>
                   {avatarUrl && (
                     <Button
@@ -191,7 +193,7 @@ export const Welcome = () => {
                   className="hidden"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  JPG, PNG, GIF, or WebP. Stored only in this browser.
+                  JPG, PNG, GIF, or WebP. {t('welcome.staysInBrowser')}
                 </p>
               </div>
 
@@ -200,7 +202,7 @@ export const Welcome = () => {
                 disabled={!userName.trim()}
                 className="w-full bg-violet-600 hover:bg-violet-700"
               >
-                Continue to dashboard
+                {t('welcome.continueDashboard')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </form>

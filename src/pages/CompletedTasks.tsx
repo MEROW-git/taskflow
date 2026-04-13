@@ -4,22 +4,24 @@ import { TaskCard } from '@/components/ui-custom/TaskCard';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { useTaskStore } from '@/store/taskStore';
 import { toast } from '@/components/ui-custom/ToastContainer';
+import { useI18n } from '@/lib/i18n';
 
 export const CompletedTasks = () => {
+  const { t } = useI18n();
   const { getTasksByStatus, toggleTaskComplete, clearCompleted } = useTaskStore();
   
   const tasks = getTasksByStatus('completed').filter(t => !t.isArchived);
 
   const handleClearAll = () => {
-    if (window.confirm(`Are you sure you want to clear all ${tasks.length} completed tasks?`)) {
+    if (window.confirm(t('tasksPage.confirmClearCompleted', { count: tasks.length }))) {
       clearCompleted();
-      toast.success('All completed tasks cleared');
+      toast.success(t('tasksPage.allCompletedCleared'));
     }
   };
 
   const handleUndoComplete = (taskId: string) => {
     toggleTaskComplete(taskId);
-    toast.success('Task marked as pending');
+    toast.success(t('tasksPage.taskMarkedPending'));
   };
 
   return (
@@ -32,10 +34,13 @@ export const CompletedTasks = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Completed Tasks
+              {t('tasksPage.completedTasks')}
             </h1>
             <p className="text-gray-500 dark:text-gray-400">
-              {tasks.length} completed task{tasks.length !== 1 ? 's' : ''}
+              {t('tasksPage.completedCount', {
+                count: tasks.length,
+                taskWord: tasks.length === 1 ? t('common.task') : t('common.tasks'),
+              })}
             </p>
           </div>
         </div>
@@ -47,7 +52,7 @@ export const CompletedTasks = () => {
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Clear All
+            {t('tasksPage.clearAll')}
           </Button>
         )}
       </div>
@@ -62,7 +67,7 @@ export const CompletedTasks = () => {
               <button
                 onClick={() => handleUndoComplete(task.id)}
                 className="absolute top-2 right-2 p-2 bg-white dark:bg-gray-800 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                title="Mark as incomplete"
+                title={t('tasksPage.markIncomplete')}
               >
                 <RotateCcw className="w-4 h-4 text-gray-600" />
               </button>

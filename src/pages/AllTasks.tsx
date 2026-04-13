@@ -6,8 +6,10 @@ import { FilterBar } from '@/components/ui-custom/FilterBar';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { useTaskStore } from '@/store/taskStore';
 import { toast } from '@/components/ui-custom/ToastContainer';
+import { useI18n } from '@/lib/i18n';
 
 export const AllTasks = () => {
+  const { t } = useI18n();
   const { 
     getFilteredTasks, 
     openAddModal, 
@@ -35,22 +37,22 @@ export const AllTasks = () => {
   };
 
   const handleBulkDelete = () => {
-    if (window.confirm(`Are you sure you want to delete ${selectedTaskIds.length} tasks?`)) {
+    if (window.confirm(t('tasksPage.confirmDeleteMany', { count: selectedTaskIds.length }))) {
       deleteTasks(selectedTaskIds);
-      toast.success(`Deleted ${selectedTaskIds.length} tasks`);
+      toast.success(t('tasksPage.deletedMany', { count: selectedTaskIds.length }));
       setSelectionMode(false);
     }
   };
 
   const handleBulkArchive = () => {
     selectedTaskIds.forEach(id => archiveTask(id));
-    toast.success(`Archived ${selectedTaskIds.length} tasks`);
+    toast.success(t('tasksPage.archivedMany', { count: selectedTaskIds.length }));
     setSelectionMode(false);
   };
 
   const handleBulkComplete = () => {
     selectedTaskIds.forEach(id => toggleTaskComplete(id));
-    toast.success(`Marked ${selectedTaskIds.length} tasks as completed`);
+    toast.success(t('tasksPage.completedMany', { count: selectedTaskIds.length }));
     setSelectionMode(false);
   };
 
@@ -60,10 +62,10 @@ export const AllTasks = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              All Tasks
+              {t('nav.allTasks')}
             </h1>
             <p className="text-gray-500 dark:text-gray-400">
-              Manage and organize all your tasks
+              {t('tasksPage.manageTasks')}
             </p>
           </div>
           <Button 
@@ -71,7 +73,7 @@ export const AllTasks = () => {
             className="bg-violet-600 hover:bg-violet-700"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Task
+            {t('common.addTask')}
           </Button>
         </div>
 
@@ -87,10 +89,13 @@ export const AllTasks = () => {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            All Tasks
+            {t('nav.allTasks')}
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
-            {tasks.length} task{tasks.length !== 1 ? 's' : ''}
+            {t('tasksPage.taskCount', {
+              count: tasks.length,
+              taskWord: tasks.length === 1 ? t('common.task') : t('common.tasks'),
+            })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -103,7 +108,7 @@ export const AllTasks = () => {
                   deselectAllTasks();
                 }}
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               {hasSelection && (
                 <>
@@ -113,7 +118,7 @@ export const AllTasks = () => {
                     className="text-green-600"
                   >
                     <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Complete
+                    {t('common.complete')}
                   </Button>
                   <Button
                     variant="outline"
@@ -121,7 +126,7 @@ export const AllTasks = () => {
                     className="text-amber-600"
                   >
                     <Archive className="w-4 h-4 mr-2" />
-                    Archive
+                    {t('common.archive')}
                   </Button>
                   <Button
                     variant="outline"
@@ -129,7 +134,7 @@ export const AllTasks = () => {
                     className="text-red-600"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
+                    {t('common.delete')}
                   </Button>
                 </>
               )}
@@ -140,14 +145,14 @@ export const AllTasks = () => {
                 variant="outline"
                 onClick={() => setSelectionMode(true)}
               >
-                Select
+                {t('common.select')}
               </Button>
               <Button 
                 onClick={openAddModal}
                 className="bg-violet-600 hover:bg-violet-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Task
+                {t('common.addTask')}
               </Button>
             </>
           )}
@@ -168,7 +173,7 @@ export const AllTasks = () => {
               className="w-4 h-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
             />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {selectedTaskIds.length} selected
+              {selectedTaskIds.length} {t('common.selected')}
             </span>
           </div>
         </div>

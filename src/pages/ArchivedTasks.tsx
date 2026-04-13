@@ -3,21 +3,23 @@ import { TaskCard } from '@/components/ui-custom/TaskCard';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { useTaskStore } from '@/store/taskStore';
 import { toast } from '@/components/ui-custom/ToastContainer';
+import { useI18n } from '@/lib/i18n';
 
 export const ArchivedTasks = () => {
+  const { t } = useI18n();
   const { getTasksByStatus, unarchiveTask, deleteTask } = useTaskStore();
   
   const tasks = getTasksByStatus('archived');
 
   const handleUnarchive = (taskId: string) => {
     unarchiveTask(taskId);
-    toast.success('Task restored');
+    toast.success(t('tasksPage.taskRestored'));
   };
 
   const handleDelete = (taskId: string, title: string) => {
-    if (window.confirm(`Are you sure you want to permanently delete "${title}"?`)) {
+    if (window.confirm(t('tasksPage.confirmDeletePermanent', { title }))) {
       deleteTask(taskId);
-      toast.success('Task deleted permanently');
+      toast.success(t('tasksPage.taskDeletedPermanently'));
     }
   };
 
@@ -31,10 +33,13 @@ export const ArchivedTasks = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Archived Tasks
+              {t('tasksPage.archivedTasks')}
             </h1>
             <p className="text-gray-500 dark:text-gray-400">
-              {tasks.length} archived task{tasks.length !== 1 ? 's' : ''}
+              {t('tasksPage.archivedCount', {
+                count: tasks.length,
+                taskWord: tasks.length === 1 ? t('common.task') : t('common.tasks'),
+              })}
             </p>
           </div>
         </div>
@@ -43,7 +48,7 @@ export const ArchivedTasks = () => {
       {/* Info Banner */}
       <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
         <p className="text-sm text-amber-800 dark:text-amber-200">
-          Archived tasks are hidden from your main task list. You can restore them anytime.
+          {t('tasksPage.archivedInfo')}
         </p>
       </div>
 
@@ -58,14 +63,14 @@ export const ArchivedTasks = () => {
                 <button
                   onClick={() => handleUnarchive(task.id)}
                   className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md"
-                  title="Restore task"
+                  title={t('tasksPage.restoreTask')}
                 >
                   <RotateCcw className="w-4 h-4 text-green-600" />
                 </button>
                 <button
                   onClick={() => handleDelete(task.id, task.title)}
                   className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md"
-                  title="Delete permanently"
+                  title={t('tasksPage.deletePermanently')}
                 >
                   <Trash2 className="w-4 h-4 text-red-600" />
                 </button>

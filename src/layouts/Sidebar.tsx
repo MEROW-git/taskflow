@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { useTaskStore } from '@/store/taskStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const location = useLocation();
   const { openAddModal, getTaskStats, getPinnedTasks, getTasksByStatus } = useTaskStore();
   const { sidebarCollapsed, toggleSidebar } = useSettingsStore();
+  const { t } = useI18n();
   const isDesktopCollapsed = sidebarCollapsed;
   
   const stats = getTaskStats();
@@ -40,16 +42,16 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const archivedCount = getTasksByStatus('archived').length;
   
   const mainNavItems: NavItem[] = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/tasks', label: 'All Tasks', icon: ListTodo, badge: stats.total },
-    { path: '/pending', label: 'Pending', icon: Clock, badge: stats.pending },
-    { path: '/completed', label: 'Completed', icon: CheckCircle2, badge: stats.completed },
-    { path: '/pinned', label: 'Pinned', icon: Pin, badge: pinnedCount },
-    { path: '/archived', label: 'Archived', icon: Archive, badge: archivedCount },
+    { path: '/', label: t('nav.dashboard'), icon: LayoutDashboard },
+    { path: '/tasks', label: t('nav.allTasks'), icon: ListTodo, badge: stats.total },
+    { path: '/pending', label: t('nav.pending'), icon: Clock, badge: stats.pending },
+    { path: '/completed', label: t('nav.completed'), icon: CheckCircle2, badge: stats.completed },
+    { path: '/pinned', label: t('nav.pinned'), icon: Pin, badge: pinnedCount },
+    { path: '/archived', label: t('nav.archived'), icon: Archive, badge: archivedCount },
   ];
   
   const bottomNavItems: NavItem[] = [
-    { path: '/settings', label: 'Settings', icon: Settings },
+    { path: '/settings', label: t('nav.settings'), icon: Settings },
   ];
 
   const isActive = (path: string) => {
@@ -131,7 +133,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             )}
           >
             <Plus className="w-5 h-5" />
-            <span className={cn('ml-2', isDesktopCollapsed && 'lg:hidden')}>Add Task</span>
+            <span className={cn('ml-2', isDesktopCollapsed && 'lg:hidden')}>{t('common.addTask')}</span>
           </Button>
         </div>
         

@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { TaskCard } from '@/components/ui-custom/TaskCard';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { useTaskStore } from '@/store/taskStore';
+import { useI18n } from '@/lib/i18n';
 
 export const PinnedTasks = () => {
+  const { t } = useI18n();
   const { getPinnedTasks, openAddModal } = useTaskStore();
   
   const tasks = getPinnedTasks();
@@ -19,10 +21,13 @@ export const PinnedTasks = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Pinned Tasks
+              {t('tasksPage.pinnedTasks')}
             </h1>
             <p className="text-gray-500 dark:text-gray-400">
-              {tasks.length} pinned task{tasks.length !== 1 ? 's' : ''}
+              {t('tasksPage.pinnedCount', {
+                count: tasks.length,
+                taskWord: tasks.length === 1 ? t('common.task') : t('common.tasks'),
+              })}
             </p>
           </div>
         </div>
@@ -31,14 +36,14 @@ export const PinnedTasks = () => {
           className="bg-violet-600 hover:bg-violet-700"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Task
+          {t('common.addTask')}
         </Button>
       </div>
 
       {/* Info Banner */}
       <div className="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-200 dark:border-violet-800">
         <p className="text-sm text-violet-800 dark:text-violet-200">
-          Pinned tasks appear at the top of your task list for quick access.
+          {t('tasksPage.pinnedInfo')}
         </p>
       </div>
 

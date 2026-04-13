@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import type { TaskType, TaskPriority, TaskStatus, ChecklistItem } from '@/types/task';
 import { v4 as uuidv4 } from 'uuid';
 import { CalendarIcon } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 const TASK_TYPES: { value: TaskType; label: string }[] = [
   { value: 'basic', label: 'Basic Task' },
@@ -35,6 +36,7 @@ const CATEGORIES = ['personal', 'work', 'shopping', 'health', 'education', 'fina
 
 export const TaskModal = () => {
   const { isTaskModalOpen, editingTask, closeTaskModal, addTask, updateTask } = useTaskStore();
+  const { t, labelTaskType, labelPriority, labelCategory } = useI18n();
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -143,19 +145,19 @@ export const TaskModal = () => {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {editingTask ? 'Edit Task' : 'Add New Task'}
+            {editingTask ? t('taskModal.editTask') : t('taskModal.addNewTask')}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
           <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
+            <Label htmlFor="title">{t('taskModal.title')}</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter task title..."
+              placeholder={t('taskModal.titlePlaceholder')}
               className="w-full"
               autoFocus
             />
@@ -163,12 +165,12 @@ export const TaskModal = () => {
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('taskModal.description')}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add a description..."
+              placeholder={t('taskModal.descriptionPlaceholder')}
               rows={3}
             />
           </div>
@@ -176,7 +178,7 @@ export const TaskModal = () => {
           {/* Task Type & Priority */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Task Type</Label>
+              <Label>{t('taskModal.taskType')}</Label>
               <Select value={taskType} onValueChange={(v) => setTaskType(v as TaskType)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -184,7 +186,7 @@ export const TaskModal = () => {
                 <SelectContent>
                   {TASK_TYPES.map((type) => (
                     <SelectItem key={type.value} value={type.value}>
-                      {type.label}
+                      {labelTaskType(type.value)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -192,7 +194,7 @@ export const TaskModal = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>{t('taskModal.priority')}</Label>
               <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -200,7 +202,7 @@ export const TaskModal = () => {
                 <SelectContent>
                   {PRIORITIES.map((p) => (
                     <SelectItem key={p.value} value={p.value}>
-                      {p.label}
+                      {labelPriority(p.value)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -211,7 +213,7 @@ export const TaskModal = () => {
           {/* Due Date & Category */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Due Date</Label>
+              <Label>{t('taskModal.dueDate')}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -222,7 +224,7 @@ export const TaskModal = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dueDate ? format(dueDate, 'PPP') : 'Pick a date'}
+                    {dueDate ? format(dueDate, 'PPP') : t('taskModal.pickDate')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
@@ -272,7 +274,7 @@ export const TaskModal = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t('taskModal.category')}</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
                   <SelectValue />
@@ -280,7 +282,7 @@ export const TaskModal = () => {
                 <SelectContent>
                   {CATEGORIES.map((cat) => (
                     <SelectItem key={cat} value={cat}>
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      {labelCategory(cat)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -291,14 +293,14 @@ export const TaskModal = () => {
           {/* Checklist Section */}
           {taskType === 'checklist' && (
             <div className="space-y-3">
-              <Label>Checklist Items</Label>
+              <Label>{t('taskModal.checklistItems')}</Label>
               
               {/* Add new item */}
               <div className="flex gap-2">
                 <Input
                   value={newChecklistItem}
                   onChange={(e) => setNewChecklistItem(e.target.value)}
-                  placeholder="Add a checklist item..."
+                  placeholder={t('taskModal.checklistPlaceholder')}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -341,7 +343,7 @@ export const TaskModal = () => {
 
               {checklist.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  No checklist items yet. Add some above.
+                  {t('taskModal.noChecklistItems')}
                 </p>
               )}
             </div>
@@ -350,12 +352,12 @@ export const TaskModal = () => {
           {/* Note Content Section */}
           {taskType === 'note' && (
             <div className="space-y-2">
-              <Label htmlFor="noteContent">Note Content</Label>
+              <Label htmlFor="noteContent">{t('taskModal.noteContent')}</Label>
               <Textarea
                 id="noteContent"
                 value={noteContent}
                 onChange={(e) => setNoteContent(e.target.value)}
-                placeholder="Write your notes here..."
+                placeholder={t('taskModal.notePlaceholder')}
                 rows={6}
                 className="font-mono text-sm"
               />
@@ -370,7 +372,7 @@ export const TaskModal = () => {
                   checked={isRecurring}
                   onCheckedChange={(checked) => setIsRecurring(checked as boolean)}
                 />
-                <Label>Enable recurring</Label>
+                <Label>{t('taskModal.enableRecurring')}</Label>
               </div>
               
               {isRecurring && (
@@ -394,20 +396,20 @@ export const TaskModal = () => {
               checked={isPinned}
               onCheckedChange={(checked) => setIsPinned(checked as boolean)}
             />
-            <Label>Pin this task</Label>
+            <Label>{t('taskModal.pinTask')}</Label>
           </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={closeTaskModal}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button 
               type="submit" 
               className="bg-violet-600 hover:bg-violet-700"
               disabled={!title.trim()}
             >
-              {editingTask ? 'Update Task' : 'Add Task'}
+              {editingTask ? t('taskModal.updateTask') : t('common.addTask')}
             </Button>
           </div>
         </form>
