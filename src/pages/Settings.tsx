@@ -9,16 +9,21 @@ import {
   Info,
   Github,
   Shield,
-  Save
+  Save,
+  User,
+  Trash2 as RemoveIcon
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTaskStore } from '@/store/taskStore';
 import { toast } from '@/components/ui-custom/ToastContainer';
+import { requestNotificationPermission, sendBrowserNotification, isNotificationSupported } from '@/utils/notificationUtils';
 
 export const Settings = () => {
   const {
@@ -30,11 +35,25 @@ export const Settings = () => {
     toggleDueDateReminders,
     confirmBeforeDelete,
     toggleConfirmBeforeDelete,
+    userName,
+    avatarUrl,
+    setUserProfile,
   } = useSettingsStore();
 
   const { exportTasks, importTasks, clearAll, tasks } = useTaskStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [importError, setImportError] = useState<string | null>(null);
+  const [profileName, setProfileName] = useState(userName);
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState(avatarUrl);
+
+  const profileInitials =
+    profileName
+      .trim()
+      .split(/\s+/)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('')
+      .slice(0, 2) || 'U';
 
   const handleExport = () => {
     const data = exportTasks();
@@ -90,8 +109,78 @@ export const Settings = () => {
     }
   };
 
+  const handleSaveProfile = () => {
+    if (!profileName.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+
+    setUserProfile({
+      userName: profileName,
+      avatarUrl: profileAvatarUrl,
+    });
+    toast.success('Profile updated');
+  };
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result;
+      if (typeof result === 'string') {
+        setProfileAvatarUrl(result);
+      }
+    };
+    reader.readAsDataURL(file);
+
+    e.target.value = '';
+  };
+
+  const handleToggleNotifications = async (checked: boolean) => {
+    if (checked) {
+      if (!isNotificationSupported()) {
+        toast.error('This browser does not support notifications');
+        return;
+      }
+
+      const permission = await requestNotificationPermission();
+      if (permission !== 'granted') {
+        toast.error('Notification permission was not granted');
+        return;
+      }
+
+      if (!enableNotifications) {
+        toggleNotifications();
+      }
+
+      sendBrowserNotification('FlowTask notifications enabled', {
+        body: 'You will now receive reminders while the app is open.',
+      });
+      toast.success('Notifications enabled');
+      return;
+    }
+
+    if (enableNotifications) {
+      toggleNotifications();
+    }
+    toast.info('Notifications disabled');
+  };
+
+  const handleToggleDueReminders = (checked: boolean) => {
+    if (!enableNotifications && checked) {
+      toast.error('Enable notifications first');
+      return;
+    }
+
+    if (dueDateReminders !== checked) {
+      toggleDueDateReminders();
+    }
+  };
+
   return (
-    <div className="space-y-6 max-w-3xl">
+    <div className="mx-auto max-w-3xl space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -101,6 +190,82 @@ export const Settings = () => {
           Customize your FlowTask experience
         </p>
       </div>
+
+      <Card className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <User className="w-5 h-5 text-violet-600" />
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Profile
+          </h2>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
+            <Avatar className="h-14 w-14">
+              <AvatarImage src={profileAvatarUrl} alt={profileName || 'User profile'} />
+              <AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300">
+                {profileInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium text-gray-900 dark:text-white">
+                {profileName.trim() || 'Unnamed user'}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Stored locally in this browser
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="profile-name">Name</Label>
+            <Input
+              id="profile-name"
+              value={profileName}
+              onChange={(e) => setProfileName(e.target.value)}
+              placeholder="Your name"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Profile image</Label>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => avatarInputRef.current?.click()}
+                className="flex-1"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {profileAvatarUrl ? 'Change image' : 'Upload image'}
+              </Button>
+              {profileAvatarUrl && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setProfileAvatarUrl('')}
+                >
+                  <RemoveIcon className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="hidden"
+            />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Stored locally in this browser.
+            </p>
+          </div>
+
+          <Button onClick={handleSaveProfile} className="bg-violet-600 hover:bg-violet-700">
+            Save Profile
+          </Button>
+        </div>
+      </Card>
 
       {/* Appearance */}
       <Card className="p-6">
@@ -154,7 +319,7 @@ export const Settings = () => {
             <Switch
               id="notifications"
               checked={enableNotifications}
-              onCheckedChange={toggleNotifications}
+              onCheckedChange={handleToggleNotifications}
             />
           </div>
           
@@ -172,7 +337,7 @@ export const Settings = () => {
             <Switch
               id="due-reminders"
               checked={dueDateReminders}
-              onCheckedChange={toggleDueDateReminders}
+              onCheckedChange={handleToggleDueReminders}
             />
           </div>
         </div>

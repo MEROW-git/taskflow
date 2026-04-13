@@ -16,11 +16,13 @@ import { StatsCard } from '@/components/ui-custom/StatsCard';
 import { TaskCard } from '@/components/ui-custom/TaskCard';
 import { EmptyState } from '@/components/ui-custom/EmptyState';
 import { useTaskStore } from '@/store/taskStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import { formatDate, getDueDateStatus } from '@/utils/dateUtils';
 import { cn } from '@/lib/utils';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
+  const { userName } = useSettingsStore();
   const { 
     getTaskStats, 
     getRecentTasks, 
@@ -45,7 +47,7 @@ export const Dashboard = () => {
             Dashboard
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
-            Welcome back! Here's your task overview.
+            {userName ? `Welcome back, ${userName}! Here's your task overview.` : "Welcome back! Here's your task overview."}
           </p>
         </div>
         <Button 

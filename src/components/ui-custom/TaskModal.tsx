@@ -217,7 +217,7 @@ export const TaskModal = () => {
                   <Button
                     variant="outline"
                     className={cn(
-                      'w-full justify-start text-left font-normal',
+                      'w-full justify-start rounded-xl border-gray-200 bg-white text-left font-normal shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800',
                       !dueDate && 'text-muted-foreground'
                     )}
                   >
@@ -225,12 +225,47 @@ export const TaskModal = () => {
                     {dueDate ? format(dueDate, 'PPP') : 'Pick a date'}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent
+                  align="start"
+                  sideOffset={8}
+                  className="w-auto rounded-2xl border border-gray-200 bg-white p-3 shadow-xl dark:border-gray-700 dark:bg-gray-900"
+                >
                   <Calendar
                     mode="single"
                     selected={dueDate}
                     onSelect={setDueDate}
                     initialFocus
+                    className="rounded-xl bg-transparent p-0"
+                    classNames={{
+                      root: 'w-fit',
+                      month: 'w-full gap-3',
+                      month_caption: 'flex h-10 items-center justify-center px-10',
+                      caption_label: 'text-sm font-semibold text-gray-900 dark:text-gray-100',
+                      nav: 'absolute inset-x-0 top-0 flex items-center justify-between',
+                      button_previous:
+                        'h-8 w-8 rounded-full border border-gray-200 bg-white p-0 text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
+                      button_next:
+                        'h-8 w-8 rounded-full border border-gray-200 bg-white p-0 text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700',
+                      weekdays: 'mt-2 grid grid-cols-7 gap-1',
+                      weekday:
+                        'flex h-8 items-center justify-center text-[0.75rem] font-medium uppercase tracking-wide text-gray-400 dark:text-gray-500',
+                      week: 'mt-1 grid grid-cols-7 gap-1',
+                      day: 'h-10 w-10 p-0',
+                      today:
+                        'rounded-full bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
+                    }}
+                    components={{
+                      DayButton: ({ className, ...props }) => (
+                        <button
+                          {...props}
+                          className={cn(
+                            'h-10 w-10 rounded-full text-sm font-medium text-gray-700 transition-colors hover:bg-violet-50 hover:text-violet-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 dark:text-gray-200 dark:hover:bg-violet-900/30 dark:hover:text-violet-300',
+                            'aria-selected:bg-violet-600 aria-selected:text-white dark:aria-selected:bg-violet-500',
+                            className
+                          )}
+                        />
+                      ),
+                    }}
                   />
                 </PopoverContent>
               </Popover>

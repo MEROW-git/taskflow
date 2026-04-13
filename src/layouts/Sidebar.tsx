@@ -33,6 +33,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
   const location = useLocation();
   const { openAddModal, getTaskStats, getPinnedTasks, getTasksByStatus } = useTaskStore();
   const { sidebarCollapsed, toggleSidebar } = useSettingsStore();
+  const isDesktopCollapsed = sidebarCollapsed;
   
   const stats = getTaskStats();
   const pinnedCount = getPinnedTasks().length;
@@ -73,13 +74,14 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
         className={cn(
           'fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50',
           'transition-all duration-300 ease-in-out',
-          sidebarCollapsed ? 'w-20' : 'w-64',
+          'w-64 lg:w-64',
+          isDesktopCollapsed && 'lg:w-20',
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200 dark:border-gray-800">
-          {!sidebarCollapsed && (
+          {!isDesktopCollapsed && (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
                 <ListTodo className="w-5 h-5 text-white" />
@@ -89,8 +91,8 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
               </span>
             </div>
           )}
-          {sidebarCollapsed && (
-            <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center mx-auto">
+          {isDesktopCollapsed && (
+            <div className="hidden lg:flex w-8 h-8 rounded-lg bg-violet-600 items-center justify-center mx-auto">
               <ListTodo className="w-5 h-5 text-white" />
             </div>
           )}
@@ -100,10 +102,10 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             onClick={toggleSidebar}
             className={cn(
               'hidden lg:flex items-center justify-center w-6 h-6 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
-              sidebarCollapsed && 'absolute -right-3 top-5 w-6 h-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full'
+              isDesktopCollapsed && 'absolute -right-3 top-5 w-6 h-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full'
             )}
           >
-            {sidebarCollapsed ? (
+            {isDesktopCollapsed ? (
               <ChevronRight className="w-3 h-3 text-gray-500" />
             ) : (
               <ChevronLeft className="w-4 h-4 text-gray-500" />
@@ -125,11 +127,11 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
             onClick={openAddModal}
             className={cn(
               'w-full bg-violet-600 hover:bg-violet-700 text-white',
-              sidebarCollapsed && 'p-2'
+              isDesktopCollapsed && 'lg:p-2'
             )}
           >
             <Plus className="w-5 h-5" />
-            {!sidebarCollapsed && <span className="ml-2">Add Task</span>}
+            <span className={cn('ml-2', isDesktopCollapsed && 'lg:hidden')}>Add Task</span>
           </Button>
         </div>
         
@@ -149,14 +151,14 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
                 isActive(item.path)
                   ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
-                sidebarCollapsed && 'justify-center px-2'
+                isDesktopCollapsed && 'lg:justify-center lg:px-2'
               )}
             >
               <item.icon className={cn(
                 'w-5 h-5 flex-shrink-0',
                 isActive(item.path) ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500 dark:text-gray-400'
               )} />
-              {!sidebarCollapsed && (
+              <div className={cn('flex items-center flex-1', isDesktopCollapsed && 'lg:hidden')}>
                 <>
                   <span className="flex-1">{item.label}</span>
                   {item.badge !== undefined && item.badge > 0 && (
@@ -170,7 +172,7 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
                     </span>
                   )}
                 </>
-              )}
+              </div>
             </NavLink>
           ))}
         </nav>
@@ -191,14 +193,14 @@ export const Sidebar = ({ isOpen, onToggle }: SidebarProps) => {
                 isActive(item.path)
                   ? 'bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800',
-                sidebarCollapsed && 'justify-center px-2'
+                isDesktopCollapsed && 'lg:justify-center lg:px-2'
               )}
             >
               <item.icon className={cn(
                 'w-5 h-5 flex-shrink-0',
                 isActive(item.path) ? 'text-violet-600 dark:text-violet-400' : 'text-gray-500 dark:text-gray-400'
               )} />
-              {!sidebarCollapsed && <span>{item.label}</span>}
+              <span className={cn(isDesktopCollapsed && 'lg:hidden')}>{item.label}</span>
             </NavLink>
           ))}
         </div>

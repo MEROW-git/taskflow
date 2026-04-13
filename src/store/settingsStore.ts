@@ -5,6 +5,11 @@ interface SettingsState {
   // Appearance
   darkMode: boolean;
   sidebarCollapsed: boolean;
+
+  // Profile
+  userName: string;
+  avatarUrl: string;
+  hasCompletedOnboarding: boolean;
   
   // Notifications
   enableNotifications: boolean;
@@ -20,6 +25,8 @@ interface SettingsState {
   setDarkMode: (value: boolean) => void;
   toggleSidebar: () => void;
   setSidebarCollapsed: (value: boolean) => void;
+  setUserProfile: (profile: { userName: string; avatarUrl?: string }) => void;
+  clearUserProfile: () => void;
   toggleNotifications: () => void;
   toggleDueDateReminders: () => void;
   setReminderTime: (minutes: number) => void;
@@ -33,6 +40,9 @@ interface SettingsState {
 const defaultSettings = {
   darkMode: false,
   sidebarCollapsed: false,
+  userName: '',
+  avatarUrl: '',
+  hasCompletedOnboarding: false,
   enableNotifications: false,
   dueDateReminders: true,
   reminderTime: 60, // 1 hour before
@@ -75,6 +85,22 @@ export const useSettingsStore = create<SettingsState>()(
 
       setSidebarCollapsed: (value) => {
         set({ sidebarCollapsed: value });
+      },
+
+      setUserProfile: ({ userName, avatarUrl = '' }) => {
+        set({
+          userName: userName.trim(),
+          avatarUrl: avatarUrl.trim(),
+          hasCompletedOnboarding: true,
+        });
+      },
+
+      clearUserProfile: () => {
+        set({
+          userName: '',
+          avatarUrl: '',
+          hasCompletedOnboarding: false,
+        });
       },
 
       toggleNotifications: () => {

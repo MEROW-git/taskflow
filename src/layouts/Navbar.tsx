@@ -1,8 +1,11 @@
 import { Menu, Search, Bell, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTaskStore } from '@/store/taskStore';
 import { useSettingsStore } from '@/store/settingsStore';
+import { toast } from '@/components/ui-custom/ToastContainer';
+import { requestNotificationPermission, sendBrowserNotification, isNotificationSupported } from '@/utils/notificationUtils';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -10,7 +13,39 @@ interface NavbarProps {
 
 export const Navbar = ({ onMenuClick }: NavbarProps) => {
   const { filter, setFilter } = useTaskStore();
-  const { darkMode, toggleDarkMode } = useSettingsStore();
+  const { darkMode, toggleDarkMode, userName, avatarUrl, enableNotifications } = useSettingsStore();
+  const userInitial =
+    userName
+      .trim()
+      .split(/\s+/)
+      .map((part) => part[0]?.toUpperCase() ?? '')
+      .join('')
+      .slice(0, 2) || 'U';
+
+  const handleNotificationClick = async () => {
+    if (!isNotificationSupported()) {
+      toast.error('This browser does not support notifications');
+      return;
+    }
+
+    if (!enableNotifications) {
+      toast.info('Enable notifications in Settings first');
+      return;
+    }
+
+    if (Notification.permission !== 'granted') {
+      const permission = await requestNotificationPermission();
+      if (permission !== 'granted') {
+        toast.error('Notification permission was not granted');
+        return;
+      }
+    }
+
+    sendBrowserNotification('FlowTask test notification', {
+      body: 'Notifications are working in this browser.',
+    });
+    toast.success('Test notification sent');
+  };
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
@@ -72,18 +107,23 @@ export const Navbar = ({ onMenuClick }: NavbarProps) => {
           <Button
             variant="ghost"
             size="icon"
+            onClick={handleNotificationClick}
             className="text-gray-600 dark:text-gray-400 relative"
+            title="Send test notification"
           >
             <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-violet-600 rounded-full" />
+            {enableNotifications && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-violet-600 rounded-full" />
+            )}
           </Button>
           
           {/* User Avatar */}
-          <div className="w-8 h-8 rounded-full bg-violet-100 dark:bg-violet-900 flex items-center justify-center">
-            <span className="text-sm font-medium text-violet-700 dark:text-violet-300">
-              U
-            </span>
-          </div>
+          <Avatar className="h-8 w-8 ring-2 ring-violet-100 dark:ring-violet-900/60">
+            <AvatarImage src={avatarUrl} alt={userName || 'User profile'} />
+            <AvatarFallback className="bg-violet-100 text-sm font-medium text-violet-700 dark:bg-violet-900 dark:text-violet-300">
+              {userInitial}
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
       

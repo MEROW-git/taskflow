@@ -79,6 +79,11 @@ export const TaskCard = ({
     duplicateTask(task.id);
   };
 
+  const handleOpenTask = () => {
+    if (showCheckbox) return;
+    openEditModal(task);
+  };
+
   const getTaskTypeIcon = () => {
     switch (task.taskType) {
       case 'checklist':
@@ -96,11 +101,21 @@ export const TaskCard = ({
 
   return (
     <Card
+      onClick={handleOpenTask}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleOpenTask();
+        }
+      }}
+      role={showCheckbox ? undefined : 'button'}
+      tabIndex={showCheckbox ? -1 : 0}
       className={cn(
         'group relative p-4 transition-all duration-200',
         'hover:shadow-md hover:-translate-y-0.5',
         'border border-gray-200 dark:border-gray-700',
         'bg-white dark:bg-gray-800',
+        !showCheckbox && 'cursor-pointer',
         task.status === 'completed' && 'opacity-75',
         task.isPinned && 'ring-1 ring-violet-500 dark:ring-violet-400',
         isSelected && 'ring-2 ring-violet-500 dark:ring-violet-400'
@@ -111,6 +126,7 @@ export const TaskCard = ({
         <div className="absolute top-3 left-3">
           <Checkbox
             checked={isSelected}
+            onClick={(e) => e.stopPropagation()}
             onCheckedChange={() => onSelect?.(task.id)}
             className="border-gray-300 dark:border-gray-600"
           />
@@ -123,7 +139,10 @@ export const TaskCard = ({
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {/* Complete Toggle */}
             <button
-              onClick={() => toggleTaskComplete(task.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleTaskComplete(task.id);
+              }}
               className={cn(
                 'flex-shrink-0 transition-colors',
                 task.status === 'completed' 
@@ -154,7 +173,10 @@ export const TaskCard = ({
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
             {/* Pin Button */}
             <button
-              onClick={() => toggleTaskPin(task.id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleTaskPin(task.id);
+              }}
               className={cn(
                 'p-1.5 rounded-md transition-colors',
                 task.isPinned 
@@ -172,7 +194,10 @@ export const TaskCard = ({
             {/* More Actions */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
                   <MoreVertical className="w-4 h-4" />
                 </button>
               </DropdownMenuTrigger>
